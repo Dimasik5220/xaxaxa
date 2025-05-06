@@ -428,14 +428,12 @@ class PromoHunter(QMainWindow):
         self.save_to_history(search_text)
         filtered = []
         for promo in self.promocodes:
-                    for promo in self.promocodes:
             if (search_text in promo["code"].lower() or search_text in promo["description"].lower() or search_text in
                     promo["category"].lower()):
                 filtered.append(promo)
         self.promocodes_list.clear()
         for promo in filtered:
             item = QListWidgetItem()
-               item = QListWidgetItem()
             icon_path = self.get_icon_for_category(promo["category"])
             if icon_path and os.path.exists(icon_path):
                 item.setIcon(QIcon(icon_path))
@@ -467,6 +465,7 @@ class PromoHunter(QMainWindow):
             return
         cart_window = QMainWindow()
         cart_window.setWindowTitle("Корзина промокодов")
+        cart_window.setFixedSize(600, 400)
         central_widget = QWidget()
         cart_window.setCentralWidget(central_widget)
         layout = QVBoxLayout()
@@ -491,6 +490,36 @@ class PromoHunter(QMainWindow):
         remove_btn.clicked.connect(lambda: self.remove_from_cart(cart_list, cart_window))
         layout.addWidget(remove_btn)
         cart_window.show()
+
+    def remove_from_cart(self, cart_list, window):
+        selected = cart_list.currentItem()
+        if not selected:
+            QMessageBox.warning(window, "Ошибка", "Выберите промокод для удаления")
+            return
+        text = selected.text().split(" - ")[0]
+        self.cart = [p for p in self.cart if p["code"] != text]
+        window.close()
+        self.view_cart()
+
+    def save_cart(self):
+        if not self.cart:
+            QMessageBox.warning(self, "Ошибка", "Корзина пуста")
+            return
+        file_path, _ = QFileDialog.getSaveFileName(self, "Сохранить корзину промокодов", "",
+                                                   "Текстовые файлы (*.txt);;Все файлы (*)")
+        if not file_path: return
+        try:
+            with open(file_path, "w", encoding="utf-8") as f:
+                f.write("=== ВАША КОРЗИНА ПРОМОКОДОВ ===\n\n")
+                for i, promo in enumerate(self.cart, 1):
+                    f.write(f"{i}. {promo['code']} - {promo['description']}\n")
+                    f.write(f"   Категория: {promo['category']}\n")
+                    f.write(f"   Статус: {'Истек' if promo['expired'] else 'Активен'}\n\n")
+                f.write("\nСгенерировано в PROMO HUNTER")
+            QMessageBox.information(self, "Успех", f"Корзина сохранена в файл:\n{file_path}")
+        except Exception as e:
+            QMessageBox.critical(self, "Ошибка", f"Не удалось сохранить файл:\n{str(e)}")
+
     def save_to_history(self, search_text):
         if search_text in self.search_history: return
         self.search_history.append(search_text)
@@ -534,6 +563,45 @@ class PromoHunter(QMainWindow):
         self.search_input.setText(search_text)
         self.search_promocodes()
         window.close()
+
+    def clear_history(self, window):
+        reply = QMessageBox.question(window, "Очистка истории", "Вы уверены, что хотите очистить всю историю поиска?",
+                                     QMessageBox.Yes | QMessageBox.No)
+        if reply == QMessageBox.Yes:
+            self.search_history = []
+            self.save_json("history/search_history.json", [])
+            QMessageBox.information(window, "Успех", "История поиска очищена")
+            window.close()
+
+    def refresh_promocodes(self):
+        self.load_promocodes()
+        QMessageBox.information(self, "Успех", "Список промокодов обновлен")
+
+    def toggle_favorite(self):
+        selected = self.promocodes_list.currentItem()
+        if not selected: return
+        promo = selected.data(Qt.UserRole)
+        if promo["code"] in self.favorites:
+            self.favorites.remove(promo["code"])
+        else:
+            self.favorites.append(promo["code"])
+        self.save_json("user_data/favorites.json", self.favorites)
+        self.update_favorites_list()
+
+    def update_favorites_list(self):
+        self.fav_list.clear()
+        for promo in self.promocodes:
+            if promo["code"] in self.favorites:
+                item = QListWidgetItem()
+                icon_path = self.get_icon_for_category(promo["category"])
+                if icon_path and os.path.exists(icon_path):
+                    item.setIcon(QIcon(icon_path))
+                text = f"{promo['code']} - {promo['description']}\nКатегория: {promo['category']} | Статус: {'Истек' if promo['expired'] else 'Активен'}"
+                item.setText(text)
+                if promo["expired"]: item.setForeground(Qt.gray)
+                item.setData(Qt.UserRole, promo)
+                self.fav_list.addItem(item)
+
     def remove_from_favorites(self):
         selected = self.fav_list.currentItem()
         if not selected: return
@@ -558,3 +626,15 @@ class PromoHunter(QMainWindow):
             self.promocodes.sort(key=lambda x: not x['expired'])
         self.update_promocodes_list()
 
+
+if __name__ == "__main__":
+    app = QApplication([])
+    app.setStyle("Fusion")
+
+    welcome = WelcomeWindow()
+    if welcome.exec_() == QDialog.Accepted:
+        user_name = welcome.name_input.text() or "Пользователь"
+        lang = welcome.lang_combo.currentText()
+        window = PromoHunter(user_name, lang)
+        window.show()
+        app.exec_()
