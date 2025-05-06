@@ -192,3 +192,35 @@ class PromoHunter(QMainWindow):
             ["Сортировка", "По дате (новые)", "По дате (старые)", "По категории", "Активные", "Истекшие"])
         self.sort_combo.currentIndexChanged.connect(self.sort_promocodes)
         search_panel.addWidget(self.sort_combo)
+
+        layout.addLayout(search_panel)
+        self.promocodes_list = QListWidget()
+        self.promocodes_list.setIconSize(QSize(32, 32))
+        layout.addWidget(self.promocodes_list)
+
+        button_panel = QHBoxLayout()
+        self.add_to_cart_btn = QPushButton("Добавить в корзину")
+        self.add_to_cart_btn.clicked.connect(self.add_to_cart)
+        button_panel.addWidget(self.add_to_cart_btn)
+
+        self.add_to_fav_btn = QPushButton("В избранное")
+        self.add_to_fav_btn.clicked.connect(self.toggle_favorite)
+        button_panel.addWidget(self.add_to_fav_btn)
+
+        self.view_cart_btn = QPushButton("Корзина")
+        self.view_cart_btn.clicked.connect(self.view_cart)
+        button_panel.addWidget(self.view_cart_btn)
+
+        self.save_cart_btn = QPushButton("Сохранить корзину")
+        self.save_cart_btn.clicked.connect(self.save_cart)
+        button_panel.addWidget(self.save_cart_btn)
+
+        self.history_btn = QPushButton("История поиска")
+        self.history_btn.clicked.connect(self.show_history)
+        button_panel.addWidget(self.history_btn)
+
+        self.refresh_btn = QPushButton("Обновить")
+        self.refresh_btn.clicked.connect(self.refresh_promocodes)
+        button_panel.addWidget(self.refresh_btn)
+
+        layout.addLayout(button_panel)
