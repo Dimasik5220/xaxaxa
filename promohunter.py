@@ -224,3 +224,125 @@ class PromoHunter(QMainWindow):
         button_panel.addWidget(self.refresh_btn)
 
         layout.addLayout(button_panel)
+    def init_fav_tab(self):
+        layout = QVBoxLayout()
+        self.fav_tab.setLayout(layout)
+        self.fav_list = QListWidget()
+        self.fav_list.setIconSize(QSize(32, 32))
+        layout.addWidget(self.fav_list)
+
+        button_panel = QHBoxLayout()
+        self.remove_fav_btn = QPushButton("Удалить из избранного")
+        self.remove_fav_btn.clicked.connect(self.remove_from_favorites)
+        button_panel.addWidget(self.remove_fav_btn)
+
+        self.recommend_btn = QPushButton("Рекомендации")
+        self.recommend_btn.clicked.connect(self.show_recommendations)
+        button_panel.addWidget(self.recommend_btn)
+
+        layout.addLayout(button_panel)
+        self.update_favorites_list()
+
+    def init_stats_tab(self):
+        layout = QVBoxLayout()
+        self.stats_tab.setLayout(layout)
+        stats_label = QLabel("Статистика будет здесь")
+        layout.addWidget(stats_label)
+
+    def show_settings(self):
+        dialog = SettingsDialog(self)
+        dialog.theme_combo.setCurrentText(self.current_theme)
+        if dialog.exec_() == QDialog.Accepted:
+            self.current_theme = dialog.theme_combo.currentText()
+            self.apply_theme(self.current_theme)
+
+    def show_rating_dialog(self):
+        dialog = RatingDialog(self)
+        dialog.exec_()
+
+    def apply_theme(self, theme):
+        if theme == "Синяя":
+            self.setStyleSheet("""
+                QWidget {
+                    background-color: #e6f3ff;
+                    color: #000;
+                }
+                QListWidget {
+                    background-color: #fff;
+                    border: 1px solid #99c2ff;
+                }
+                QPushButton {
+                    background-color: #4d94ff;
+                    color: white;
+                    border: none;
+                    padding: 5px;
+                }
+            """)
+        elif theme == "Темно-синяя":
+            self.setStyleSheet("""
+                QWidget {
+                    background-color: #003366;
+                    color: #fff;
+                }
+                QListWidget {
+                    background-color: #002244;
+                    border: 1px solid #0055a5;
+                }
+                QPushButton {
+                    background-color: #0055a5;
+                    color: white;
+                    border: none;
+                    padding: 5px;
+                }
+            """)
+        elif theme == "Черная":
+            self.setStyleSheet("""
+                QWidget {
+                    background-color: #1a1a1a;
+                    color: #fff;
+                }
+                QListWidget {
+                    background-color: #2d2d2d;
+                    border: 1px solid #4d4d4d;
+                }
+                QPushButton {
+                    background-color: #333;
+                    color: white;
+                    border: none;
+                    padding: 5px;
+                }
+            """)
+        elif theme == "Серая":
+            self.setStyleSheet("""
+                QWidget {
+                    background-color: #d9d9d9;
+                    color: #000;
+                }
+                QListWidget {
+                    background-color: #f2f2f2;
+                    border: 1px solid #bfbfbf;
+                }
+                QPushButton {
+                    background-color: #a6a6a6;
+                    color: white;
+                    border: none;
+                    padding: 5px;
+                }
+            """)
+        elif theme == "Белая":
+            self.setStyleSheet("""
+                QWidget {
+                    background-color: #fff;
+                    color: #000;
+                }
+                QListWidget {
+                    background-color: #fff;
+                    border: 1px solid #ddd;
+                }
+                QPushButton {
+                    background-color: #f2f2f2;
+                    color: #000;
+                    border: 1px solid #ddd;
+                    padding: 5px;
+                }
+            """)
