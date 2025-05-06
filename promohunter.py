@@ -163,9 +163,32 @@ class PromoHunter(QMainWindow):
         self.tabs.addTab(self.fav_tab, "Избранное")
         self.tabs.addTab(self.stats_tab, "Статистика")
         main_layout.addWidget(self.tabs)
-class SettingsDialog(QDialog):
-    def __init__(self, parent=None):
-        super().__init__(parent)
-        self.setWindowTitle("Настройки")
-        self.setFixedSize(300, 200)
-        self.theme_label = Label("Выберите тему:")
+
+    def init_promo_tab(self):
+        layout = QVBoxLayout()
+        self.promo_tab.setLayout(layout)
+
+        search_panel = QHBoxLayout()
+        self.category_combo = QComboBox()
+        self.category_combo.addItems(
+            ["Все категории", "Доставка еды", "Стройматериалы", "Озон/Wildberries", "Одежда/Обувь", "Электроника",
+             "Красота/Здоровье", "Путешествия", "Развлечения"])
+        search_panel.addWidget(self.category_combo)
+
+        self.search_input = QLineEdit()
+        self.search_input.setPlaceholderText("Введите промокод или магазин...")
+        search_panel.addWidget(self.search_input)
+
+        self.search_btn = QPushButton("Поиск")
+        self.search_btn.clicked.connect(self.search_promocodes)
+        search_panel.addWidget(self.search_btn)
+
+        self.expired_check = QCheckBox("Показать истекшие")
+        self.expired_check.stateChanged.connect(self.toggle_expired)
+        search_panel.addWidget(self.expired_check)
+
+        self.sort_combo = QComboBox()
+        self.sort_combo.addItems(
+            ["Сортировка", "По дате (новые)", "По дате (старые)", "По категории", "Активные", "Истекшие"])
+        self.sort_combo.currentIndexChanged.connect(self.sort_promocodes)
+        search_panel.addWidget(self.sort_combo)
