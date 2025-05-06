@@ -467,3 +467,27 @@ class PromoHunter(QMainWindow):
             return
         cart_window = QMainWindow()
         cart_window.setWindowTitle("Корзина промокодов")
+        central_widget = QWidget()
+        cart_window.setCentralWidget(central_widget)
+        layout = QVBoxLayout()
+        central_widget.setLayout(layout)
+        title = QLabel("Ваши выбранные промокоды:")
+        title.setFont(QFont("Arial", 14, QFont.Bold))
+        layout.addWidget(title)
+        cart_list = QListWidget()
+        cart_list.setFont(QFont("Arial", 10))
+        for promo in self.cart:
+            item = QListWidgetItem()
+            icon_path = self.get_icon_for_category(promo["category"])
+            if icon_path and os.path.exists(icon_path):
+                item.setIcon(QIcon(icon_path))
+            text = f"{promo['code']} - {promo['description']}\nКатегория: {promo['category']} | Статус: {'Истек' if promo['expired'] else 'Активен'}"
+            item.setText(text)
+            if promo["expired"]: item.setForeground(Qt.gray)
+            cart_list.addItem(item)
+        layout.addWidget(cart_list)
+        remove_btn = QPushButton("Удалить выбранное")
+        remove_btn.setFont(QFont("Arial", 10))
+        remove_btn.clicked.connect(lambda: self.remove_from_cart(cart_list, cart_window))
+        layout.addWidget(remove_btn)
+        cart_window.show()
