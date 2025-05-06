@@ -491,3 +491,46 @@ class PromoHunter(QMainWindow):
         remove_btn.clicked.connect(lambda: self.remove_from_cart(cart_list, cart_window))
         layout.addWidget(remove_btn)
         cart_window.show()
+    def save_to_history(self, search_text):
+        if search_text in self.search_history: return
+        self.search_history.append(search_text)
+        self.save_json("history/search_history.json", self.search_history)
+
+    def show_history(self):
+        if not self.search_history:
+            QMessageBox.information(self, "История поиска", "История поиска пуста")
+            return
+        history_window = QMainWindow()
+        history_window.setWindowTitle("История поиска")
+        history_window.setFixedSize(500, 400)
+        central_widget = QWidget()
+        history_window.setCentralWidget(central_widget)
+        layout = QVBoxLayout()
+        central_widget.setLayout(layout)
+        title = QLabel("История ваших поисковых запросов:")
+        title.setFont(QFont("Arial", 14, QFont.Bold))
+        layout.addWidget(title)
+        history_list = QListWidget()
+        history_list.setFont(QFont("Arial", 10))
+        for item in reversed(self.search_history):
+            history_list.addItem(item)
+        layout.addWidget(history_list)
+        search_btn = QPushButton("Поиск по этому запросу")
+        search_btn.setFont(QFont("Arial", 10))
+        search_btn.clicked.connect(lambda: self.search_from_history(history_list, history_window))
+        layout.addWidget(search_btn)
+        clear_btn = QPushButton("Очистить историю")
+        clear_btn.setFont(QFont("Arial", 10))
+        clear_btn.clicked.connect(lambda: self.clear_history(history_window))
+        layout.addWidget(clear_btn)
+        history_window.show()
+
+    def search_from_history(self, history_list, window):
+        selected = history_list.currentItem()
+        if not selected:
+            QMessageBox.warning(window, "Ошибка", "Выберите запрос из истории")
+            return
+        search_text = selected.text()
+        self.search_input.setText(search_text)
+        self.search_promocodes()
+        window.close()
