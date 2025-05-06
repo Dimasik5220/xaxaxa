@@ -435,3 +435,35 @@ class PromoHunter(QMainWindow):
         self.promocodes_list.clear()
         for promo in filtered:
             item = QListWidgetItem()
+               item = QListWidgetItem()
+            icon_path = self.get_icon_for_category(promo["category"])
+            if icon_path and os.path.exists(icon_path):
+                item.setIcon(QIcon(icon_path))
+            text = f"{promo['code']} - {promo['description']}\nКатегория: {promo['category']} | Статус: {'Истек' if promo['expired'] else 'Активен'}"
+            item.setText(text)
+            if promo["expired"]: item.setForeground(Qt.gray)
+            item.setData(Qt.UserRole, promo)
+            self.promocodes_list.addItem(item)
+
+    def toggle_expired(self, state):
+        self.update_promocodes_list()
+
+    def add_to_cart(self):
+        selected = self.promocodes_list.currentItem()
+        if not selected:
+            QMessageBox.warning(self, "Ошибка", "Выберите промокод из списка")
+            return
+        promo = selected.data(Qt.UserRole)
+        for item in self.cart:
+            if item["code"] == promo["code"]:
+                QMessageBox.warning(self, "Ошибка", "Этот промокод уже в корзине")
+                return
+        self.cart.append(promo)
+        QMessageBox.information(self, "Успех", "Промокод добавлен в корзину")
+
+    def view_cart(self):
+        if not self.cart:
+            QMessageBox.information(self, "Корзина", "Корзина пуста")
+            return
+        cart_window = QMainWindow()
+        cart_window.setWindowTitle("Корзина промокодов")
