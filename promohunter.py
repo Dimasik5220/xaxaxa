@@ -224,6 +224,7 @@ class PromoHunter(QMainWindow):
         button_panel.addWidget(self.refresh_btn)
 
         layout.addLayout(button_panel)
+
     def init_fav_tab(self):
         layout = QVBoxLayout()
         self.fav_tab.setLayout(layout)
@@ -346,6 +347,7 @@ class PromoHunter(QMainWindow):
                     padding: 5px;
                 }
             """)
+
     def parse_promocodes_from_sites(self):
         try:
             new_promocodes = []
@@ -358,6 +360,7 @@ class PromoHunter(QMainWindow):
         except Exception as e:
             print(f"Ошибка парсинга: {e}")
             return []
+
     def load_promocodes(self):
         try:
             self.promocodes = []
@@ -386,6 +389,24 @@ class PromoHunter(QMainWindow):
                 self.update_promocodes_list()
             else:
                 QMessageBox.warning(self, "Ошибка", "Не удалось загрузить промокоды")
+
+    def update_promocodes_list(self):
+        self.promocodes_list.clear()
+        category = self.category_combo.currentText()
+        show_expired = self.expired_check.isChecked()
+        for promo in self.promocodes:
+            if category != "Все категории" and promo["category"] != category: continue
+            if not show_expired and promo["expired"]: continue
+            item = QListWidgetItem()
+            icon_path = self.get_icon_for_category(promo["category"])
+            if icon_path and os.path.exists(icon_path):
+                item.setIcon(QIcon(icon_path))
+            text = f"{promo['code']} - {promo['description']}\nКатегория: {promo['category']} | Статус: {'Истек' if promo['expired'] else 'Активен'}"
+            item.setText(text)
+            if promo["expired"]: item.setForeground(Qt.gray)
+            item.setData(Qt.UserRole, promo)
+            self.promocodes_list.addItem(item)
+
     def get_icon_for_category(self, category):
         icons = {
             "Доставка еды": "icons/food.png",
@@ -398,3 +419,12 @@ class PromoHunter(QMainWindow):
             "Развлечения": "icons/fun.png"
         }
         return icons.get(category, "")
+
+    def search_promocodes(self):
+        search_text = self.search_input.text().strip().lower()
+        if not search_text:
+            self.update_promocodes_list()
+            return
+        self.save_to_history(search_text)
+        filtered = []
+        for promo in self.promocodes:
