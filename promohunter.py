@@ -163,3 +163,9 @@ class PromoHunter(QMainWindow):
         self.tabs.addTab(self.fav_tab, "Избранное")
         self.tabs.addTab(self.stats_tab, "Статистика")
         main_layout.addWidget(self.tabs)
+class SettingsDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Настройки")
+        self.setFixedSize(300, 200)
+        self.theme_label = Label("Выберите тему:")
