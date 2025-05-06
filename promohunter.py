@@ -428,3 +428,10 @@ class PromoHunter(QMainWindow):
         self.save_to_history(search_text)
         filtered = []
         for promo in self.promocodes:
+                    for promo in self.promocodes:
+            if (search_text in promo["code"].lower() or search_text in promo["description"].lower() or search_text in
+                    promo["category"].lower()):
+                filtered.append(promo)
+        self.promocodes_list.clear()
+        for promo in filtered:
+            item = QListWidgetItem()
