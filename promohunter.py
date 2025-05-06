@@ -16,7 +16,6 @@ class WelcomeWindow(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Добро пожаловать")
-        self.setFixedSize(400, 200)
         layout = QVBoxLayout()
         self.name_label = QLabel("Введите ваше имя:")
         self.name_input = QLineEdit()
@@ -26,7 +25,6 @@ class WelcomeWindow(QDialog):
         self.start_btn = QPushButton("Начать")
         self.start_btn.clicked.connect(self.accept)
         layout.addWidget(self.name_label)
-        layout.addWidget(self.name_input)
         layout.addWidget(self.lang_label)
         layout.addWidget(self.lang_combo)
         layout.addWidget(self.start_btn)
@@ -80,5 +78,46 @@ class PromoHunter(QMainWindow):
         self.lang = lang
         self.start_time = time.time()
         self.setWindowTitle("PROMO HUNTER")
-        self.setWindowIcon(QIcon("icon.png"))
         self.setFixedSize(1200, 800)
+
+        self.last_login = datetime.now().strftime("%Y-%m-%d %H:%M")
+        self.last_update = "Никогда"
+        self.current_theme = "Синяя"
+
+        if not os.path.exists("data"): os.makedirs("data")
+        if not os.path.exists("history"): os.makedirs("history")
+        if not os.path.exists("user_data"): os.makedirs("user_data")
+
+        self.search_history = self.load_json("history/search_history.json", [])
+        self.favorites = self.load_json("user_data/favorites.json", [])
+        self.promocodes = []
+        self.cart = []
+
+
+
+        self.timer = QTimer(self)
+        self.timer.timeout.connect(self.update_session_time)
+        self.timer.start(60000)
+
+    def update_session_time(self):
+        minutes = int((time.time() - self.start_time) / 60)
+        self.session_time_label.setText(f"Время в приложении: {minutes} мин")
+
+    def load_json(self, path, default):
+        try:
+            if os.path.exists(path):
+                with open(path, "r", encoding="utf-8") as f:
+                    return json.load(f)
+        except:
+            pass
+        return default
+
+    def save_json(self, path, data):
+        with open(path, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+
+    def init_ui(self):
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        main_layout = QVBoxLayout()
+        central_widget.setLayout(main_layout)
