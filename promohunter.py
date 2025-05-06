@@ -40,32 +40,45 @@ class SettingsDialog(QDialog):
         self.setFixedSize(300, 200)
         layout = QVBoxLayout()
         self.theme_label = QLabel("Выберите тему:")
+        self.theme_combo = QComboBox()
         self.theme_combo.addItems(["Синяя", "Темно-синяя", "Черная", "Серая", "Белая"])
         buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
         buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(self.theme_label)
+        layout.addWidget(self.theme_combo)
         layout.addWidget(buttons)
         self.setLayout(layout)
 
+
+class RatingDialog(QDialog):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Оцените приложение")
+        self.setFixedSize(300, 150)
+        layout = QVBoxLayout()
+        self.rating_label = QLabel("Выберите оценку:")
+        self.rating_combo = QComboBox()
+        self.rating_combo.addItems(["1 звезда", "2 звезды", "3 звезды", "4 звезды", "5 звезд"])
+        buttons = QDialogButtonBox(QDialogButtonBox.Ok | QDialogButtonBox.Cancel)
+        buttons.accepted.connect(self.accept_rating)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(self.rating_label)
+        layout.addWidget(self.rating_combo)
+        layout.addWidget(buttons)
+        self.setLayout(layout)
+
+    def accept_rating(self):
+        QMessageBox.information(self, "Спасибо", "Спасибо за ваш отзыв, наша компания очень благодарна вам!")
+        self.accept()
+
+
 class PromoHunter(QMainWindow):
     def __init__(self, user_name="Пользователь", lang="Русский"):
+        super().__init__()
+        self.user_name = user_name
+        self.lang = lang
+        self.start_time = time.time()
         self.setWindowTitle("PROMO HUNTER")
+        self.setWindowIcon(QIcon("icon.png"))
         self.setFixedSize(1200, 800)
-
-        self.last_login = datetime.now().strftime("%Y-%m-%d %H:%M")
-        self.last_update = "Никогда"
-        self.current_theme = "Синяя"
-
-        if not os.path.exists("data"): os.makedirs("data")
-        if not os.path.exists("history"): os.makedirs("history")
-        if not os.path.exists("user_data"): os.makedirs("user_data")
-
-        self.favorites = self.load_json("user_data/favorites.json", [])
-        self.promocodes = []
-        self.cart = []
-
-        self.init_ui()
-        self.load_promocodes()
-        self.apply_theme(self.current_theme)
-
-        self.timer = QTimer(self)
-        self.timer.start(60000)
