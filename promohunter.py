@@ -534,3 +534,27 @@ class PromoHunter(QMainWindow):
         self.search_input.setText(search_text)
         self.search_promocodes()
         window.close()
+    def remove_from_favorites(self):
+        selected = self.fav_list.currentItem()
+        if not selected: return
+        promo = selected.data(Qt.UserRole)
+        self.favorites.remove(promo["code"])
+        self.save_json("user_data/favorites.json", self.favorites)
+        self.update_favorites_list()
+
+    def show_recommendations(self):
+        QMessageBox.information(self, "Рекомендации", "Рекомендации будут здесь")
+
+    def sort_promocodes(self, index):
+        if index == 1:
+            self.promocodes.sort(key=lambda x: x.get('date', ''), reverse=True)
+        elif index == 2:
+            self.promocodes.sort(key=lambda x: x.get('date', ''))
+        elif index == 3:
+            self.promocodes.sort(key=lambda x: x['category'])
+        elif index == 4:
+            self.promocodes.sort(key=lambda x: x['expired'])
+        elif index == 5:
+            self.promocodes.sort(key=lambda x: not x['expired'])
+        self.update_promocodes_list()
+
