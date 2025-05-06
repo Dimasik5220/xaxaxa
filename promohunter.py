@@ -16,6 +16,7 @@ class WelcomeWindow(QDialog):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Добро пожаловать")
+        self.setFixedSize(400, 200)
         layout = QVBoxLayout()
         self.name_label = QLabel("Введите ваше имя:")
         self.name_input = QLineEdit()
@@ -25,6 +26,7 @@ class WelcomeWindow(QDialog):
         self.start_btn = QPushButton("Начать")
         self.start_btn.clicked.connect(self.accept)
         layout.addWidget(self.name_label)
+        layout.addWidget(self.name_input)
         layout.addWidget(self.lang_label)
         layout.addWidget(self.lang_combo)
         layout.addWidget(self.start_btn)
@@ -78,6 +80,7 @@ class PromoHunter(QMainWindow):
         self.lang = lang
         self.start_time = time.time()
         self.setWindowTitle("PROMO HUNTER")
+        self.setWindowIcon(QIcon("icon.png"))
         self.setFixedSize(1200, 800)
 
         self.last_login = datetime.now().strftime("%Y-%m-%d %H:%M")
@@ -93,7 +96,9 @@ class PromoHunter(QMainWindow):
         self.promocodes = []
         self.cart = []
 
-
+        self.init_ui()
+        self.load_promocodes()
+        self.apply_theme(self.current_theme)
 
         self.timer = QTimer(self)
         self.timer.timeout.connect(self.update_session_time)
@@ -121,3 +126,40 @@ class PromoHunter(QMainWindow):
         self.setCentralWidget(central_widget)
         main_layout = QVBoxLayout()
         central_widget.setLayout(main_layout)
+
+        top_panel = QHBoxLayout()
+        self.user_label = QLabel(f"Пользователь: {self.user_name}")
+        self.last_login_label = QLabel(f"Последний вход: {self.last_login}")
+        self.last_update_label = QLabel(f"Последнее обновление: {self.last_update}")
+        self.session_time_label = QLabel("Время в приложении: 0 мин")
+
+        top_panel.addWidget(self.user_label)
+        top_panel.addWidget(self.last_login_label)
+        top_panel.addWidget(self.last_update_label)
+        top_panel.addWidget(self.session_time_label)
+
+        self.settings_btn = QPushButton()
+        self.settings_btn.setIcon(QIcon("icons/settings.png"))
+        self.settings_btn.setFixedSize(30, 30)
+        self.settings_btn.clicked.connect(self.show_settings)
+        top_panel.addWidget(self.settings_btn)
+
+        self.rating_btn = QPushButton("Оценить")
+        self.rating_btn.clicked.connect(self.show_rating_dialog)
+        top_panel.addWidget(self.rating_btn)
+
+        main_layout.addLayout(top_panel)
+
+        self.tabs = QTabWidget()
+        self.promo_tab = QWidget()
+        self.fav_tab = QWidget()
+        self.stats_tab = QWidget()
+
+        self.init_promo_tab()
+        self.init_fav_tab()
+        self.init_stats_tab()
+
+        self.tabs.addTab(self.promo_tab, "Промокоды")
+        self.tabs.addTab(self.fav_tab, "Избранное")
+        self.tabs.addTab(self.stats_tab, "Статистика")
+        main_layout.addWidget(self.tabs)
