@@ -346,3 +346,15 @@ class PromoHunter(QMainWindow):
                     padding: 5px;
                 }
             """)
+    def parse_promocodes_from_sites(self):
+        try:
+            new_promocodes = []
+
+            url1 = "https://www.promokodabra.ru/"
+            response = requests.get(url1)
+            soup = BeautifulSoup(response.text, 'html.parser')
+
+            return new_promocodes
+        except Exception as e:
+            print(f"Ошибка парсинга: {e}")
+            return []
