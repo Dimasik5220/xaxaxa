@@ -358,3 +358,43 @@ class PromoHunter(QMainWindow):
         except Exception as e:
             print(f"Ошибка парсинга: {e}")
             return []
+    def load_promocodes(self):
+        try:
+            self.promocodes = []
+            test_data = [
+                {"code": "FOOD2023", "description": "Скидка 20% на первую доставку", "category": "Доставка еды",
+                 "expired": False, "date": "2023-12-31", "source": "Тестовые данные"},
+                {"code": "BUILD123", "description": "10% на стройматериалы", "category": "Стройматериалы",
+                 "expired": False, "date": "2023-11-30", "source": "Тестовые данные"},
+                {"code": "OZON500", "description": "500 руб. на первый заказ", "category": "Озон/Wildberries",
+                 "expired": True, "date": "2022-12-31", "source": "Тестовые данные"},
+                {"code": "FASHION15", "description": "15% на одежду и обувь", "category": "Одежда/Обувь",
+                 "expired": False, "date": "2023-12-31", "source": "Тестовые данные"},
+                {"code": "TECH50", "description": "50% на вторую покупку электроники", "category": "Электроника",
+                 "expired": False, "date": "2023-12-31", "source": "Тестовые данные"},
+            ]
+
+            parsed_promocodes = self.parse_promocodes_from_sites()
+            self.promocodes = test_data + parsed_promocodes
+            self.last_update = datetime.now().strftime("%Y-%m-%d %H:%M")
+            self.last_update_label.setText(f"Последнее обновление: {self.last_update}")
+            self.save_json("data/promocodes.json", self.promocodes)
+            self.update_promocodes_list()
+        except Exception as e:
+            if os.path.exists("data/promocodes.json"):
+                self.promocodes = self.load_json("data/promocodes.json", [])
+                self.update_promocodes_list()
+            else:
+                QMessageBox.warning(self, "Ошибка", "Не удалось загрузить промокоды")
+    def get_icon_for_category(self, category):
+        icons = {
+            "Доставка еды": "icons/food.png",
+            "Стройматериалы": "icons/build.png",
+            "Озон/Wildberries": "icons/market.png",
+            "Одежда/Обувь": "icons/clothes.png",
+            "Электроника": "icons/tech.png",
+            "Красота/Здоровье": "icons/beauty.png",
+            "Путешествия": "icons/travel.png",
+            "Развлечения": "icons/fun.png"
+        }
+        return icons.get(category, "")
