@@ -1,0 +1,42 @@
+[
+  {
+    "code": "FOOD2023",
+    "description": "Скидка 20% на первую доставку",
+    "category": "Доставка еды",
+    "expired": false,
+    "date": "2023-12-31",
+    "source": "Тестовые данные"
+  },
+  {
+    "code": "BUILD123",
+    "description": "10% на стройматериалы",
+    "category": "Стройматериалы",
+    "expired": false,
+    "date": "2023-11-30",
+    "source": "Тестовые данные"
+  },
+  {
+    "code": "OZON500",
+    "description": "500 руб. на первый заказ",
+    "category": "Озон/Wildberries",
+    "expired": true,
+    "date": "2022-12-31",
+    "source": "Тестовые данные"
+  },
+  {
+    "code": "FASHION15",
+    "description": "15% на одежду и обувь",
+    "category": "Одежда/Обувь",
+    "expired": false,
+    "date": "2023-12-31",
+    "source": "Тестовые данные"
+  },
+  {
+    "code": "TECH50",
+    "description": "50% на вторую покупку электроники",
+    "category": "Электроника",
+    "expired": false,
+    "date": "2023-12-31",
+    "source": "Тестовые данные"
+  }
+]
